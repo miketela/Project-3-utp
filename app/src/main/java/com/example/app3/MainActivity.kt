@@ -11,20 +11,33 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.room.Room
+import com.example.app3.data.AppDatabase
+import com.example.app3.ui.screens.MainScreen
+import com.example.app3.viewmodel.ClienteViewModel
+import com.example.app3.viewmodel.ProductoViewModel
+import com.example.app3.viewmodel.OrdenViewModel
 import com.example.app3.ui.theme.App3Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "app_database"
+        ).build()
+        val clienteViewModel = ClienteViewModel(db.clienteDao())
+        val productoViewModel = ProductoViewModel(db.productoDao())
+        val ordenViewModel = OrdenViewModel(db.ordenDao(), db.detalleOrdenDao())
         setContent {
             App3Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainScreen(
+                    clienteViewModel = clienteViewModel,
+                    productoViewModel = productoViewModel,
+                    ordenViewModel = ordenViewModel
+                )
             }
         }
     }
@@ -34,7 +47,7 @@ class MainActivity : ComponentActivity() {
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
-        modifier = modified
+        modifier = modifier
     )
 }
 
