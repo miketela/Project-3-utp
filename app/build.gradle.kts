@@ -1,22 +1,26 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    // ¡IMPORTANTE! Esta es la línea que soluciona el error de Kotlin 2.0
+    alias(libs.plugins.kotlin.compose.compiler)
     id("org.jetbrains.kotlin.kapt")
 }
 
 android {
     namespace = "com.example.app3"
-    compileSdk = 35
+    compileSdk = 34 // Usamos 34, la última versión estable
 
     defaultConfig {
         applicationId = "com.example.app3"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34 // Debe coincidir con compileSdk
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -29,14 +33,20 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
+    }
+    // El bloque composeOptions ya no es necesario aquí, el plugin se encarga.
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 

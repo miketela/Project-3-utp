@@ -18,6 +18,7 @@ import com.example.app3.viewmodel.OrdenViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrearOrdenScreen(
     clienteViewModel: ClienteViewModel,
@@ -36,11 +37,11 @@ fun CrearOrdenScreen(
         Text("Crear Nueva Orden", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
         // Selección de cliente
+        var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
-            expanded = false,
-            onExpandedChange = {}
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
         ) {
-            var expanded by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = clienteSeleccionado?.nombre ?: "Seleccionar Cliente",
                 onValueChange = {},
@@ -50,7 +51,7 @@ fun CrearOrdenScreen(
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
-                onClick = { expanded = !expanded }
+                // Elimina onClick aquí
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -69,11 +70,11 @@ fun CrearOrdenScreen(
         }
         Spacer(Modifier.height(8.dp))
         // Selección de producto
+        var expandedProd by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
-            expanded = false,
-            onExpandedChange = {}
+            expanded = expandedProd,
+            onExpandedChange = { expandedProd = it }
         ) {
-            var expandedProd by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = productoSeleccionado?.nombreProducto ?: "Seleccionar Producto",
                 onValueChange = {},
@@ -83,7 +84,7 @@ fun CrearOrdenScreen(
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedProd)
                 },
-                onClick = { expandedProd = !expandedProd }
+                // Elimina onClick aquí
             )
             ExposedDropdownMenu(
                 expanded = expandedProd,
