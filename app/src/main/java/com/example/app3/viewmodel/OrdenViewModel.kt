@@ -6,6 +6,7 @@ import com.example.app3.data.dao.OrdenDao
 import com.example.app3.data.dao.DetalleOrdenDao
 import com.example.app3.data.entities.Orden
 import com.example.app3.data.entities.DetalleOrden
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -42,5 +43,13 @@ class OrdenViewModel(
             detalleOrdenDao.insert(detalle.copy(idOrden = ordenId))
         }
         onComplete()
+    }
+
+    fun getOrdenById(idOrden: Long): Flow<Orden> {
+        return ordenDao.getById(idOrden)
+    }
+
+    fun getDetallesOrdenForOrder(idOrden: Long): Flow<List<DetalleOrden>> {
+        return detalleOrdenDao.getDetallesForOrden(idOrden)
     }
 }

@@ -9,6 +9,9 @@ interface OrdenDao {
     @Query("SELECT * FROM ordenes")
     fun getAll(): Flow<List<Orden>>
 
+    @Query("SELECT * FROM ordenes WHERE idOrden = :idOrden")
+    fun getById(idOrden: Long): Flow<Orden>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(orden: Orden): Long
 

@@ -9,6 +9,9 @@ interface DetalleOrdenDao {
     @Query("SELECT * FROM detalle_orden WHERE idOrden = :ordenId")
     fun getByOrdenId(ordenId: Long): Flow<List<DetalleOrden>>
 
+    @Query("SELECT * FROM detalle_orden WHERE idOrden = :ordenId")
+    fun getDetallesForOrden(ordenId: Long): Flow<List<DetalleOrden>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(detalle: DetalleOrden): Long
 

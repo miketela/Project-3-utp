@@ -12,6 +12,20 @@
 #   public *;
 #}
 
+# Jetpack Compose rules
+-keep public class androidx.compose.runtime.snapshots.** { *; }
+-keep public class androidx.compose.runtime.** { *; }
+-keep public class androidx.compose.ui.** { *; }
+-keep public class androidx.compose.animation.** { *; }
+-keep public class androidx.compose.foundation.** { *; }
+-keep public class androidx.compose.material.** { *; }
+-keep public class androidx.compose.material3.** { *; }
+-keep public class androidx.compose.ui.text.** { *; }
+-keep public class androidx.compose.ui.graphics.** { *; }
+-keep public class androidx.compose.ui.platform.** { *; }
+-keep public class androidx.compose.ui.tooling.** { *; }
+-keep public class androidx.compose.ui.viewinterop.** { *; }
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable

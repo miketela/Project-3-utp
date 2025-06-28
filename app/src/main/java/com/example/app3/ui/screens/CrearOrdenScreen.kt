@@ -15,6 +15,7 @@ import com.example.app3.data.entities.DetalleOrden
 import com.example.app3.viewmodel.ClienteViewModel
 import com.example.app3.viewmodel.ProductoViewModel
 import com.example.app3.viewmodel.OrdenViewModel
+import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,14 +25,17 @@ fun CrearOrdenScreen(
     clienteViewModel: ClienteViewModel,
     productoViewModel: ProductoViewModel,
     ordenViewModel: OrdenViewModel,
-    onOrdenCreada: () -> Unit
+    onOrdenCreada: () -> Unit,
+    navController: NavController
 ) {
     val clientes by clienteViewModel.clientes.collectAsState()
     val productos by productoViewModel.productos.collectAsState()
     var clienteSeleccionado by remember { mutableStateOf<Cliente?>(null) }
     var productoSeleccionado by remember { mutableStateOf<Producto?>(null) }
     var cantidad by remember { mutableStateOf("") }
-    var detalles by remember { mutableStateOf(listOf<DetalleOrden>()) }
+    var detalles by remember { mutableStateOf(listOf<Pair<DetalleOrden, Producto>>()) }
+
+    val totalOrden = detalles.sumOf { (detalle, producto) -> producto.precio * detalle.cantidad }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text("Crear Nueva Orden", style = MaterialTheme.typography.titleLarge)
@@ -48,10 +52,7 @@ fun CrearOrdenScreen(
                 readOnly = true,
                 label = { Text("Cliente") },
                 modifier = Modifier.menuAnchor().fillMaxWidth(),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                // Elimina onClick aquí
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -68,6 +69,9 @@ fun CrearOrdenScreen(
                 }
             }
         }
+        Button(onClick = { navController.navigate("clientes") }, modifier = Modifier.fillMaxWidth()) {
+            Text("Agregar Cliente")
+        }
         Spacer(Modifier.height(8.dp))
         // Selección de producto
         var expandedProd by remember { mutableStateOf(false) }
@@ -81,10 +85,7 @@ fun CrearOrdenScreen(
                 readOnly = true,
                 label = { Text("Producto") },
                 modifier = Modifier.menuAnchor().fillMaxWidth(),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedProd)
-                },
-                // Elimina onClick aquí
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedProd) },
             )
             ExposedDropdownMenu(
                 expanded = expandedProd,
@@ -92,7 +93,7 @@ fun CrearOrdenScreen(
             ) {
                 productos.forEach { producto ->
                     DropdownMenuItem(
-                        text = { Text(producto.nombreProducto) },
+                        text = { Text("${producto.nombreProducto} - ${producto.precio}") },
                         onClick = {
                             productoSeleccionado = producto
                             expandedProd = false
@@ -113,11 +114,12 @@ fun CrearOrdenScreen(
                 val prod = productoSeleccionado
                 val cant = cantidad.toIntOrNull()
                 if (prod != null && cant != null && cant > 0) {
-                    detalles = detalles + DetalleOrden(
+                    val nuevoDetalle = DetalleOrden(
                         idOrden = 0L, // Se asignará después
                         idProducto = prod.idProducto,
                         cantidad = cant
                     )
+                    detalles = detalles + (nuevoDetalle to prod)
                     productoSeleccionado = null
                     cantidad = ""
                 }
@@ -127,11 +129,10 @@ fun CrearOrdenScreen(
             Text("Agregar Producto a Orden")
         }
         Spacer(Modifier.height(16.dp))
-        Text("Productos en la Orden", style = MaterialTheme.typography.titleMedium)
-        LazyColumn {
+        Text("Resumen de la Orden", style = MaterialTheme.typography.titleMedium)
+        LazyColumn(modifier = Modifier.weight(1f)) {
             items(detalles.size) { idx ->
-                val detalle = detalles[idx]
-                val prod = productos.find { it.idProducto == detalle.idProducto }
+                val (detalle, prod) = detalles[idx]
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -143,28 +144,28 @@ fun CrearOrdenScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
-                            Text(prod?.nombreProducto ?: "", style = MaterialTheme.typography.bodyLarge)
-                            Text("Cantidad: ${detalle.cantidad}", style = MaterialTheme.typography.bodyMedium)
+                            Text(prod.nombreProducto, style = MaterialTheme.typography.bodyLarge)
+                            Text("Cantidad: ${detalle.cantidad} x ${prod.precio}", style = MaterialTheme.typography.bodyMedium)
                         }
-                        Row {
-                            IconButton(onClick = {
-                                detalles = detalles.filterIndexed { i, _ -> i != idx }
-                            }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
-                            }
+                        IconButton(onClick = {
+                            detalles = detalles.filterIndexed { i, _ -> i != idx }
+                        }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                         }
                     }
                 }
             }
         }
         Spacer(Modifier.height(16.dp))
+        Text("Total: ${String.format("%.2f", totalOrden)}", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(8.dp))
         Button(
             onClick = {
                 val cliente = clienteSeleccionado
                 if (cliente != null && detalles.isNotEmpty()) {
                     val fecha = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
                     val orden = Orden(idCliente = cliente.idCliente, fecha = fecha)
-                    ordenViewModel.insertOrdenConDetalles(orden, detalles) {
+                    ordenViewModel.insertOrdenConDetalles(orden, detalles.map { it.first }) {
                         onOrdenCreada()
                     }
                 }

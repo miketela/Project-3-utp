@@ -23,11 +23,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "app_database"
-        ).build()
+        val db = AppDatabase.getDatabase(applicationContext)
         val clienteViewModel = ClienteViewModel(db.clienteDao())
         val productoViewModel = ProductoViewModel(db.productoDao())
         val ordenViewModel = OrdenViewModel(db.ordenDao(), db.detalleOrdenDao())

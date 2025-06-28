@@ -14,6 +14,7 @@ import com.example.app3.viewmodel.ProductoViewModel
 @Composable
 fun ProductosScreen(viewModel: ProductoViewModel) {
     val productos by viewModel.productos.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
 
@@ -47,6 +48,13 @@ fun ProductosScreen(viewModel: ProductoViewModel) {
             Text("Agregar Producto")
         }
         Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { viewModel.onSearchQueryChange(it) },
+            label = { Text("Buscar producto...") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(16.dp))
         Text("Lista de Productos", style = MaterialTheme.typography.titleMedium)
         LazyColumn {
             items(productos.size) { idx ->
@@ -63,7 +71,7 @@ fun ProductosScreen(viewModel: ProductoViewModel) {
                     ) {
                         Column {
                             Text(producto.nombreProducto, style = MaterialTheme.typography.bodyLarge)
-                            Text("$${producto.precio}", style = MaterialTheme.typography.bodyMedium)
+                            Text(String.format("$%.2f", producto.precio), style = MaterialTheme.typography.bodyMedium)
                         }
                         Row {
                             IconButton(onClick = { viewModel.delete(producto) }) {
